@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <files-path name="internal_recordings" path="recordings/" />
+    <files-path name="internal_shared" path="shared/" />
+    <cache-path name="cache_shared" path="shared/" />
+    <external-files-path name="external_recordings" path="recordings/" />
+    <external-files-path name="external_shared" path="shared/" />
+    <external-cache-path name="external_cache_shared" path="shared/" />
+</paths>

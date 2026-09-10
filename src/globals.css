@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 150 12% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 12% 12%;
+    --elevated: 150 20% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 12% 12%;
+    --primary: 158 64% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 152 35% 78%;
+    --secondary-foreground: 150 12% 12%;
+    --muted: 150 12% 92%;
+    --muted-foreground: 150 8% 40%;
+    --accent: 142 58% 52%;
+    --accent-foreground: 150 30% 10%;
+    --destructive: 2 64% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 150 24% 80%;
+    --input: 150 18% 86%;
+    --ring: 158 64% 38%;
+
+    --radius: 0.9rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 150 12% 12%;
+    --sidebar-primary: 158 64% 38%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 150 20% 92%;
+    --sidebar-accent-foreground: 150 12% 12%;
+    --sidebar-border: 150 24% 80%;
+    --sidebar-ring: 158 64% 38%;
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 140 20% 95%;
+    --card: 150 10% 8%;
+    --card-foreground: 140 20% 95%;
+    --elevated: 150 10% 12%;
+    --popover: 150 10% 8%;
+    --popover-foreground: 140 20% 95%;
+    --primary: 158 64% 52%;
+    --primary-foreground: 150 30% 6%;
+    --secondary: 152 35% 62%;
+    --secondary-foreground: 150 30% 6%;
+    --muted: 150 10% 20%;
+    --muted-foreground: 140 12% 70%;
+    --accent: 142 58% 62%;
+    --accent-foreground: 150 30% 6%;
+    --destructive: 2 64% 65%;
+    --destructive-foreground: 140 20% 95%;
+    --border: 150 20% 28%;
+    --input: 150 14% 22%;
+    --ring: 158 64% 52%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 140 20% 95%;
+    --sidebar-primary: 158 64% 52%;
+    --sidebar-primary-foreground: 150 30% 6%;
+    --sidebar-accent: 150 10% 14%;
+    --sidebar-accent-foreground: 140 20% 95%;
+    --sidebar-border: 150 20% 28%;
+    --sidebar-ring: 158 64% 52%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    min-width: 320px;
+    background-color: hsl(var(--background));
+    background-image: none;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Rose-gold brand glow */
+@keyframes ethereal-glow-drift {
+  0%, 100% {
+    filter: 
+      drop-shadow(0 0 5px hsl(var(--accent) / 0.7))
+      drop-shadow(0 0 16px hsl(var(--primary) / 0.55))
+      drop-shadow(0 0 30px hsl(var(--primary) / 0.35));
+  }
+  50% {
+    filter: 
+      drop-shadow(0 0 8px hsl(var(--accent) / 0.85))
+      drop-shadow(0 0 22px hsl(var(--primary) / 0.7))
+      drop-shadow(0 0 42px hsl(var(--primary) / 0.45));
+  }
+}
+
+.fire-word-gradient {
+  background: linear-gradient(
+    to right,
+    hsl(var(--primary)) 0%,
+    hsl(var(--accent)) 55%,
+    hsl(var(--primary)) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: ethereal-glow-drift 3s ease-in-out infinite;
+  -webkit-text-stroke: 0.6px hsl(var(--border) / 0.45);
+}
+
+.fire-glow-text-subtle {
+  background: linear-gradient(
+    to right,
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    hsl(var(--primary))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 8px hsl(var(--primary) / 0.5)) drop-shadow(0 0 16px hsl(var(--accent) / 0.35));
+}
