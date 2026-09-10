@@ -1,0 +1,42 @@
+// dyad-recording-draft-id: "0b19e781-a922-4726-8fdb-621fba71e5fb" "827c1687-8c7f-48cb-b518-8395547ffd4c"
+import { test, expect } from "@playwright/test";
+
+test("Navigate tabs and preview recordings", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("feature-vu-feedback-description").click();
+  await page.getByTestId("feature-lossless-pcm-description").click();
+  await page.getByTestId("feature-wasapi-loopback-description").click();
+  await page.getByRole("tab", { name: "Instructions", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Native Setup Instructions" })).toBeVisible();
+  await page.getByTestId("instruction-step-1-description").click();
+  await page.getByTestId("instruction-step-1-icon").click();
+  await page.getByTestId("instruction-step-2-icon").click();
+  await page.getByRole("tab", { name: "History", exact: true }).click();
+  await expect(page.getByText("Recorded Mixes History")).toBeVisible();
+  await page.getByRole("button", { name: "Play audio preview", exact: true }).nth(0).click();
+  await page.getByText("SL.STUDIO_Club_Session_2025-02-14.wav", { exact: true }).click();
+  await page.getByRole("button", { name: "Copy Path", exact: true }).nth(0).click();
+  await page.getByText("44.1 kHz / 16-bit Stereo", { exact: true }).click();
+  await page.getByRole("button", { name: "Play audio preview", exact: true }).nth(0).click();
+  await page.getByRole("button", { name: "Play audio preview", exact: true }).nth(1).click();
+  await page.getByRole("button", { name: "Pause audio preview", exact: true }).click();
+  await page.getByText("Studio_Techno_Master_2025-02-09.wav", { exact: true }).dblclick();
+  await page.getByRole("button", { name: "Copy Path", exact: true }).nth(2).click();
+  await page.getByText("Lossless Audio & DJ Set Recorder", { exact: true }).click();
+  await page.getByTestId("header-tagline-badge").click();
+  await page.getByRole("img", { name: "SL.STUDIO Logo", exact: true }).click();
+  await page.getByRole("tab", { name: "Troubleshoot", exact: true }).click();
+  await page.getByTestId("troubleshoot-audio-captured-description").click();
+  await page.getByTestId("troubleshoot-audio-captured-icon").dblclick();
+  await page.getByTestId("troubleshoot-card-content").click();
+  await page.getByRole("tab", { name: "History", exact: true }).click();
+  await page.getByTestId("tab-navigator-container").click();
+  await page.getByRole("tab", { name: "Verification", exact: true }).click();
+  await page.getByRole("tab", { name: "Instructions", exact: true }).click();
+  await page.getByTestId("tab-navigator-list").click();
+  await page.getByRole("tab", { name: "Overview", exact: true }).click();
+  await expect(page.getByText("Studio Overview")).toBeVisible();
+  await page.getByText("Direct Link", { exact: true }).click();
+  await page.getByText("Zero Compression", { exact: true }).click();
+  await page.getByTestId("feature-vu-feedback-description").click();
+});

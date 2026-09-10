@@ -1,0 +1,95 @@
+name: Build & Release SL.STUDIO
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-web:
+    name: Build Web App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Web
+        run: npm run build
+
+      - name: Upload Web Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: dist/
+
+  build-windows-native:
+    name: Build Windows Native App (SLSTUDIO.exe)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish Windows Single-File Binary
+        run: |
+          dotnet publish native/DJSetRecorder/SL.STUDIO.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -o dist/windows-x64
+
+      - name: Upload Windows Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: slstudio-windows-x64
+          path: dist/windows-x64/SLSTUDIO.exe
+
+  create-github-release:
+    name: Create GitHub Release
+    needs: [build-web, build-windows-native]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Windows Binary
+        uses: actions/download-artifact@v4
+        with:
+          name: slstudio-windows-x64
+          path: release-assets/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/SLSTUDIO.exe
+          name: SL.STUDIO ${{ github.ref_name }}
+          body: |
+            ## SL.STUDIO Release ${{ github.ref_name }}
+            
+            ### Included Assets:
+            - **`SLSTUDIO.exe`**: Standalone, self-contained single-file 64-bit Windows WASAPI loopback recorder.
+            
+            ### Features:
+            - Pure WASAPI loopback capture from default Windows multimedia endpoint.
+            - Low-latency circular buffering with zero compression loss.
+            - Direct automatic saving to `%USERPROFILE%\Music\SL.STUDIO Sets\`.
+          draft: false
+          prerelease: false

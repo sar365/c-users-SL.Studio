@@ -1,0 +1,15 @@
+<Application x:Class="SLSTUDIO.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <SolidColorBrush x:Key="AppBackground" Color="#0a1215" />
+        <SolidColorBrush x:Key="AppCardBackground" Color="#101c20" />
+        <SolidColorBrush x:Key="AppElevated" Color="#16252a" />
+        <SolidColorBrush x:Key="AppBorder" Color="#223a42" />
+        <SolidColorBrush x:Key="AppPrimary" Color="#1fb5a2" />
+        <SolidColorBrush x:Key="AppForeground" Color="#f0fdfa" />
+        <SolidColorBrush x:Key="AppMuted" Color="#7aa3af" />
+        <SolidColorBrush x:Key="AppDestructive" Color="#f43f5e" />
+    </Application.Resources>
+</Application>
