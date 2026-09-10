@@ -74,8 +74,8 @@ export const BrandLogo = ({ className = "" }: { className?: string }) => (
   >
     <div className="w-full h-full rounded-2xl bg-transparent flex items-center justify-center">
       <img
-        src="/assets/sonora-logo.jpg"
-        alt="Sonora logo"
+        src="/assets/sl-studio-logo.jpg"
+        alt="SL.STUDIO logo"
         className="h-full w-full object-contain filter hue-rotate-[85deg] saturate-[0.8] drop-shadow-[0_0_12px_hsl(var(--primary)/0.45)]"
         onError={(e) => {
           e.currentTarget.style.display = "none";
