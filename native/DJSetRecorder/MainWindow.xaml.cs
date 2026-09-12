@@ -90,6 +90,7 @@ public partial class MainWindow : Window
         var isAsio = string.Equals(item.Tag?.ToString(), "Asio", StringComparison.Ordinal);
         _engine.Source = isAsio ? AudioSourceMode.Asio : AudioSourceMode.WasapiLoopback;
         AsioDriverComboBox.Visibility = isAsio ? Visibility.Visible : Visibility.Collapsed;
+        AsioInputRow.Visibility = isAsio && _asioAvailable ? Visibility.Visible : Visibility.Collapsed;
         EndpointLabelText.Text = isAsio ? "ASIO INPUT DRIVER" : "ACTIVE WINDOWS PLAYBACK ENDPOINT";
         SourceBadgeText.Text = isAsio ? "ASIO INPUT" : "WASAPI LOOPBACK";
 
@@ -103,6 +104,43 @@ public partial class MainWindow : Window
             _engine.AsioDriverName = driverName;
             DeviceNameText.Text = driverName;
             FormatText.Text = "ASIO format is selected when recording starts.";
+            if (AsioInputComboBox.Items.Count == 0)
+            {
+                PopulateAsioInputs(driverName);
+            }
+        }
+    }
+
+    private void PopulateAsioInputs(string driverName)
+    {
+        AsioInputComboBox.Items.Clear();
+        var channelNames = _engine.GetAsioInputChannelNames(driverName);
+        for (var i = 0; i < channelNames.Count; i++)
+        {
+            var label = i + 1 < channelNames.Count
+                ? $"{channelNames[i]} / {channelNames[i + 1]}"
+                : $"{channelNames[i]} (mono)";
+            AsioInputComboBox.Items.Add(new System.Windows.Controls.ComboBoxItem { Content = label, Tag = i });
+        }
+
+        if (AsioInputComboBox.Items.Count > 0)
+        {
+            AsioInputComboBox.IsEnabled = true;
+            AsioInputComboBox.SelectedIndex = 0;
+        }
+        else
+        {
+            AsioInputComboBox.Items.Add(new System.Windows.Controls.ComboBoxItem { Content = "Driver exposes no inputs (or is in use by another app)", Tag = 0 });
+            AsioInputComboBox.SelectedIndex = 0;
+            AsioInputComboBox.IsEnabled = false;
+        }
+    }
+
+    private void OnAsioInputSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (AsioInputComboBox?.SelectedItem is System.Windows.Controls.ComboBoxItem { Tag: int offset })
+        {
+            _engine.AsioInputChannelOffset = offset;
         }
     }
 
@@ -112,6 +150,10 @@ public partial class MainWindow : Window
             !driverName.StartsWith("No ASIO", StringComparison.Ordinal))
         {
             _engine.AsioDriverName = driverName;
+            if (AsioInputComboBox is not null)
+            {
+                PopulateAsioInputs(driverName);
+            }
             if (_engine.Source == AudioSourceMode.Asio)
             {
                 DeviceNameText.Text = driverName;
@@ -124,6 +166,7 @@ public partial class MainWindow : Window
         RecordToggleButton.IsEnabled = false;
         SourceComboBox.IsEnabled = false;
         AsioDriverComboBox.IsEnabled = false;
+        AsioInputComboBox.IsEnabled = false;
         try
         {
             if (_engine.IsRecording)
@@ -145,6 +188,7 @@ public partial class MainWindow : Window
             RecordToggleButton.IsEnabled = true;
             SourceComboBox.IsEnabled = !_engine.IsRecording;
             AsioDriverComboBox.IsEnabled = !_engine.IsRecording && _asioAvailable;
+            AsioInputComboBox.IsEnabled = !_engine.IsRecording && _asioAvailable && AsioInputComboBox.Items.Count > 0;
         }
     }
 

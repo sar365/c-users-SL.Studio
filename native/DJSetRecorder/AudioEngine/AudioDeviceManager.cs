@@ -28,5 +28,29 @@ public sealed class AudioDeviceManager : IDisposable
         }
     }
 
+    /// <summary>
+    /// Returns the input channel names exposed by an ASIO driver, in driver order.
+    /// Opens the driver briefly, so this must be called from the UI (STA) thread.
+    /// </summary>
+    public IReadOnlyList<string> GetAsioInputChannelNames(string driverName)
+    {
+        try
+        {
+            using var driver = new AsioOut(driverName);
+            var names = new List<string>(driver.DriverInputChannelCount);
+            for (var i = 0; i < driver.DriverInputChannelCount; i++)
+            {
+                var name = driver.AsioInputChannelName(i);
+                names.Add(string.IsNullOrWhiteSpace(name) ? $"Input {i + 1}" : name);
+            }
+
+            return names;
+        }
+        catch
+        {
+            return Array.Empty<string>();
+        }
+    }
+
     public void Dispose() => _enumerator.Dispose();
 }

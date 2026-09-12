@@ -24,6 +24,8 @@ public sealed class RecordingEngine : IDisposable
     public bool IsRecording { get; private set; }
     public AudioSourceMode Source { get; set; } = AudioSourceMode.WasapiLoopback;
     public string? AsioDriverName { get; set; }
+    /// <summary>Zero-based index of the first ASIO input channel to record (a stereo pair starts here).</summary>
+    public int AsioInputChannelOffset { get; set; }
     public string DeviceName { get; private set; } = "Detecting Windows default output…";
     public string FormatDescription { get; private set; } = "WAV";
     public string? CurrentFilePath => IsRecording ? _paths.TemporaryPath : null;
@@ -39,6 +41,9 @@ public sealed class RecordingEngine : IDisposable
     }
 
     public IReadOnlyList<string> GetAsioDriverNames() => _deviceManager.GetAsioDriverNames();
+
+    public IReadOnlyList<string> GetAsioInputChannelNames(string driverName) =>
+        _deviceManager.GetAsioInputChannelNames(driverName);
 
     public async Task StartAsync()
     {
@@ -58,8 +63,9 @@ public sealed class RecordingEngine : IDisposable
                     throw new InvalidOperationException("Select an ASIO driver before starting a recording.");
                 }
 
-                _capture = new AsioCaptureService(AsioDriverName, buffer);
-                DeviceName = $"ASIO • {AsioDriverName}";
+                var asio = new AsioCaptureService(AsioDriverName, AsioInputChannelOffset, buffer);
+                _capture = asio;
+                DeviceName = $"ASIO • {AsioDriverName} • {asio.InputChannelDescription}";
             }
             else
             {

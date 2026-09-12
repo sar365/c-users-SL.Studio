@@ -27,6 +27,6 @@ SL.STUDIO is a modern, bit-perfect live audio recording companion and WASAPI loo
 ### Publish Single-File Executable
 ```bash
 cd native/DJSetRecorder
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true
 ```
 The compiled standalone executable will be located in `bin/publish/win-x64/SLSTUDIO.exe`.
