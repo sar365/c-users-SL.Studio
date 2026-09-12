@@ -73,6 +73,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Border Grid.Row="0" HorizontalAlignment="Right" Background="#141fb5a2" BorderBrush="{StaticResource AppPrimary}" BorderThickness="1" CornerRadius="10" Padding="10,6" VerticalAlignment="Center">
                     <TextBlock x:Name="SourceBadgeText" Text="WASAPI LOOPBACK" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AppPrimary}" />
@@ -96,7 +97,15 @@
                     <TextBlock Grid.Column="0" Text="ASIO DRIVER" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AppMuted}" VerticalAlignment="Center" />
                     <ComboBox Grid.Column="1" x:Name="AsioDriverComboBox" SelectionChanged="OnAsioDriverSelectionChanged" Margin="14,0,0,0" Height="28" HorizontalAlignment="Left" Width="360" Visibility="Collapsed" />
                 </Grid>
-                <StackPanel Grid.Row="2">
+                <Grid Grid.Row="2" x:Name="AsioInputRow" Margin="0,0,0,8" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="ASIO INPUTS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AppMuted}" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" x:Name="AsioInputComboBox" SelectionChanged="OnAsioInputSelectionChanged" Margin="14,0,0,0" Height="28" HorizontalAlignment="Left" Width="360" />
+                </Grid>
+                <StackPanel Grid.Row="3">
                     <TextBlock x:Name="EndpointLabelText" Text="ACTIVE WINDOWS PLAYBACK ENDPOINT" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AppMuted}" />
                     <TextBlock x:Name="DeviceNameText" Text="Resolving default audio output..." FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource AppForeground}" Margin="0,4,0,2" />
                     <TextBlock x:Name="FormatText" Text="Detecting mix format (PCM 44.1/48kHz)..." FontSize="11" Foreground="{StaticResource AppMuted}" />
