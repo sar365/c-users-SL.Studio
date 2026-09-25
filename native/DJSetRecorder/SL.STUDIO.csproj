@@ -1,13 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyTitle>SL.STUDIO</AssemblyTitle>
+    <Title>SL.STUDIO</Title>
+    <Product>SL.STUDIO</Product>
+    <Description>Windows system audio recorder with uncompressed WAV output</Description>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0</InformationalVersion>
     <AssemblyName>SLSTUDIO</AssemblyName>
     <RootNamespace>SLSTUDIO</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
     <Platforms>AnyCPU;x64</Platforms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <SelfContained>true</SelfContained>
@@ -21,5 +30,6 @@
 
   <ItemGroup>
     <Resource Include="Assets\AppIcon.png" />
+    <Resource Include="Assets\AppIcon.ico" />
   </ItemGroup>
 </Project>

@@ -1,11 +1,11 @@
-# SL.STUDIO — Record What You Hear (Phase 1)
+# SL.STUDIO — Record What You Hear
 
 This directory contains the real Windows recording desktop application. The React project at the repository root is an interactive visual preview and control guide.
 
 ## Requirements
 
 - Windows 10 version 2004 or newer, or Windows 11
-- Visual Studio 2022 with the .NET desktop development workload (or .NET 8.0 SDK)
+- Visual Studio 2022 with the .NET desktop development workload (or .NET 10 SDK)
 - A Windows playback endpoint selected as the default multimedia output for WASAPI
 - Optional: an installed ASIO driver with at least one input channel for ASIO recording
 
@@ -15,12 +15,12 @@ Open `SL.STUDIO.csproj` in Visual Studio or compile from terminal:
 
 ```bash
 cd native/DJSetRecorder
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o ./bin/publish/win-x64
 ```
 
 The `win-x64` publish profile creates a self-contained single-file Windows build under `bin/publish/win-x64/SLSTUDIO.exe`.
 
-## Implemented Phase 1 path
+## Recording path
 
 `WASAPI loopback (default) or selected ASIO input → bounded pooled buffer → dedicated WAV writer task → .wav`
 
@@ -33,7 +33,7 @@ The `win-x64` publish profile creates a self-contained single-file Windows build
 - Audio is first written to `.djrec` and renamed to `.wav` only after the WAV header has been finalized.
 - Target recordings are stored directly in `%USERPROFILE%\Music\SL.STUDIO Sets\`.
 
-## Phase 1 acceptance test
+## Windows hardware acceptance test
 
 1. Set the desired speakers, headphones, DAC, or audio interface as the Windows default output.
 2. Open `SLSTUDIO.exe` and confirm the friendly device name matches that output.

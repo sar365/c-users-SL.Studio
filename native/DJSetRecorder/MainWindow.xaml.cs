@@ -45,10 +45,13 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             DeviceNameText.Text = "No Windows playback device available";
-            StatusText.Text = ex.Message;
+            FormatText.Text = "Connect a playback device or choose an available ASIO driver.";
+            StatusText.Text = "No default playback device found.";
+            StatusText.ToolTip = ex.Message;
             if (!_asioAvailable)
             {
                 RecordToggleButton.IsEnabled = false;
+                RecordToggleButton.ToolTip = "Connect a Windows playback device to start recording.";
             }
         }
     }
@@ -226,6 +229,8 @@ public partial class MainWindow : Window
         StatusText.Text = "RECORDING";
         StatusText.Foreground = _recording;
         ButtonLabel.Text = "STOP RECORDING";
+        System.Windows.Automation.AutomationProperties.SetName(RecordToggleButton, "Stop recording");
+        RecordToggleButton.ToolTip = "Stop and finalize the current WAV recording.";
         RecordToggleButton.Background = _recording;
         BytesWrittenText.Text = "Recording in progress…";
     }
@@ -241,11 +246,13 @@ public partial class MainWindow : Window
         StatusText.Text = "READY";
         StatusText.Foreground = _accent;
         ButtonLabel.Text = "START RECORDING";
+        System.Windows.Automation.AutomationProperties.SetName(RecordToggleButton, "Start recording");
+        RecordToggleButton.ToolTip = "Start capturing the selected audio source.";
         RecordToggleButton.Background = _accent;
         MeterLeft.Value = 0;
         MeterRight.Value = 0;
-        MeterLeftText.Text = "−∞";
-        MeterRightText.Text = "−∞";
+        MeterLeftText.Text = "−∞ dBFS";
+        MeterRightText.Text = "−∞ dBFS";
         BytesWrittenText.Text = savedPath is null ? "Recording stopped." : $"Saved: {Path.GetFileName(savedPath)}";
     }
 
@@ -270,12 +277,14 @@ public partial class MainWindow : Window
     }
 
     private static string ToDecibels(float level) =>
-        level <= 0.00001f ? "−∞" : $"{20 * Math.Log10(level):0.0}";
+        level <= 0.00001f ? "−∞ dBFS" : $"{20 * Math.Log10(level):0.0} dBFS";
 
     private static string FormatBytes(long bytes)
     {
-        if (bytes >= 1024L * 1024 * 1024) return $"{bytes / (1024d * 1024 * 1024):0.00} GB";
-        return $"{bytes / (1024d * 1024):0.0} MB";
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024L * 1024) return $"{bytes / 1024d:0.#} KB";
+        if (bytes < 1024L * 1024 * 1024) return $"{bytes / (1024d * 1024):0.#} MB";
+        return $"{bytes / (1024d * 1024 * 1024):0.00} GB";
     }
 
     protected override void OnClosing(CancelEventArgs e)

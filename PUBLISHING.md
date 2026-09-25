@@ -6,7 +6,7 @@ This document contains instructions for building and publishing **SL.STUDIO** ac
 
 ## 1. Native Windows Desktop Application (`SLSTUDIO.exe`)
 
-The Windows application is a self-contained, single-file `.NET 8` WPF app located in `native/DJSetRecorder/`.
+The Windows application is a self-contained, single-file `.NET 10` WPF app located in `native/DJSetRecorder/`.
 
 ### Automated Local Build
 Run either the PowerShell script or Batch script from the project root:
@@ -102,8 +102,12 @@ The production bundle is created in `dist/`.
 
 ## 5. Pre-Flight Checklist
 
+- [ ] Choose and add the intended project license, and publish any privacy, terms, and support-contact information required by the distribution channel.
 - [ ] Version bump in `package.json` (`"version": "1.0.0"`).
 - [ ] Version bump in `android/app/build.gradle` (`versionCode` & `versionName`).
 - [ ] Version bump in `ios/App/App.xcodeproj`.
 - [ ] Version bump in `native/DJSetRecorder/SL.STUDIO.csproj`.
 - [ ] Run `npm run test` to verify e2e test suite passes.
+- [ ] Build and test the Windows recorder on a real Windows 10/11 playback device; verify start, stop, WAV playback, and output-folder access.
+- [ ] Review the release notes and confirm the published executable's SHA-256 checksum.
+- [ ] For a public Windows release, sign the executable with the publisher's Authenticode certificate; unsigned downloads can show an unknown-publisher warning.

@@ -19,10 +19,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Web
         run: npm run build
@@ -43,7 +43,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Publish Windows Single-File Binary
         run: |
@@ -56,11 +56,17 @@ jobs:
             -p:EnableCompressionInSingleFile=true `
             -o dist/windows-x64
 
+      - name: Create SHA-256 checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash dist/windows-x64/SLSTUDIO.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  SLSTUDIO.exe" | Set-Content dist/windows-x64/SLSTUDIO.exe.sha256 -NoNewline
+
       - name: Upload Windows Binary
         uses: actions/upload-artifact@v4
         with:
           name: slstudio-windows-x64
-          path: dist/windows-x64/SLSTUDIO.exe
+          path: dist/windows-x64/SLSTUDIO.exe*
 
   create-github-release:
     name: Create GitHub Release
@@ -79,17 +85,19 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release-assets/SLSTUDIO.exe
+          files: |
+            release-assets/SLSTUDIO.exe
+            release-assets/SLSTUDIO.exe.sha256
           name: SL.STUDIO ${{ github.ref_name }}
           body: |
             ## SL.STUDIO Release ${{ github.ref_name }}
             
             ### Included Assets:
-            - **`SLSTUDIO.exe`**: Standalone, self-contained single-file 64-bit Windows WASAPI loopback recorder.
+            - **`SLSTUDIO.exe`**: Standalone, self-contained single-file 64-bit Windows audio recorder.
             
             ### Features:
-            - Pure WASAPI loopback capture from default Windows multimedia endpoint.
-            - Low-latency circular buffering with zero compression loss.
-            - Direct automatic saving to `%USERPROFILE%\Music\SL.STUDIO Sets\`.
+            - WASAPI loopback capture from the default Windows playback endpoint, or capture from an installed ASIO input driver.
+            - Uncompressed WAV output with no lossy encoder in the recording path; the source app, Windows mixer, driver, and device may still affect the signal.
+            - Automatic saving to `%USERPROFILE%\Music\SL.STUDIO Sets\`.
           draft: false
           prerelease: false
