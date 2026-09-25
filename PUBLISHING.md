@@ -33,7 +33,27 @@ native/DJSetRecorder/bin/publish/win-x64/SLSTUDIO.exe
 ```
 
 ### Automated GitHub Release
-When you push a Git tag starting with `v` (e.g. `git tag v1.0.3 && git push origin v1.0.3`), the included GitHub Actions workflow will compile `SLSTUDIO.exe`, generate its SHA-256 checksum, and publish both as a GitHub Release. Before tagging, add the matching user-facing notes at `docs/releases/<tag>.md` (for example, `docs/releases/v1.0.3.md`); the workflow uses that file as the release body.
+
+The release workflow is `.github/workflows/build-and-release.yml`. **It is on the `polish/windows-release-readiness` branch in draft PR #4; merge that PR to enable it on `main`.** Ensure GitHub Actions are enabled for the repository. The release job requests the built-in `GITHUB_TOKEN` permission `contents: write`, so no personal access token or secret is needed for the normal same-repository release.
+
+For each release:
+
+1. Choose the version and update `native/DJSetRecorder/SL.STUDIO.csproj` to match it. Add complete notes at `docs/releases/vX.Y.Z.md`; the release workflow fails if that exact notes file is missing.
+2. Build and test the Windows app, check the release notes, and perform the real-hardware acceptance test from the checklist below. The workflow publishes an unsigned executable; Authenticode signing is not currently configured.
+3. Commit and push the release preparation to `main`, then create and push an annotated version tag. For example, for the next release after v1.0.2:
+
+   ```bash
+   git switch main
+   git pull --ff-only origin main
+   # Update native/DJSetRecorder/SL.STUDIO.csproj and add docs/releases/v1.0.3.md first.
+   git add native/DJSetRecorder/SL.STUDIO.csproj docs/releases/v1.0.3.md
+   git commit -m "Prepare v1.0.3 release"
+   git push origin main
+   git tag -a v1.0.3 -m "SL.STUDIO v1.0.3"
+   git push origin v1.0.3
+   ```
+
+4. Open the repository's **Actions** tab and inspect the run triggered by the tag. It builds the web app and Windows x64 self-contained executable, generates `SLSTUDIO.exe.sha256`, and publishes a GitHub Release containing both Windows files with `docs/releases/v1.0.3.md` as its release description. A push to `main` or **Run workflow** performs builds; only a `v*` tag creates a release.
 
 ---
 
