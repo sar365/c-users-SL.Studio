@@ -65,6 +65,23 @@ npm run build
 ```
 The production bundle is created in `dist/`.
 
+### GitHub Actions deployment to Vercel
+
+The workflow in `.github/workflows/ci-vercel.yml` runs lint and Playwright tests before deployment. It deploys previews for same-repository pull requests and production from `main`; pull requests from forks run checks but do not receive Vercel secrets or deployments. It uses the Vercel CLI `--prebuilt` flow, so the tested Vercel build is deployed without a second build. `vercel.json` disables Vercel's automatic Git deployments to prevent duplicate builds; GitHub Actions becomes the deployment path.
+
+Before enabling the workflow:
+
+1. Link or import this repository as a Vercel project and confirm its **Root Directory** is the repository root (`.`) and its output/build settings work with Vite.
+2. From the project's `.vercel/project.json`, copy `orgId` and `projectId`. Create a Vercel access token with access to that project/team.
+3. In GitHub, open **Settings → Secrets and variables → Actions** and add these repository secrets (never commit the token):
+   - `VERCEL_TOKEN`
+   - `VERCEL_ORG_ID`
+   - `VERCEL_PROJECT_ID`
+4. Merge the workflow and `vercel.json` changes to `main`. Pull requests to `main` run checks and a Vercel preview; pushes to `main` run checks and deploy to production. The preview URL and production URL appear in the GitHub Actions run summary.
+5. Optionally add required reviewers and other deployment protection rules to the GitHub `production` environment.
+
+If you want Vercel's native Git integration to create deployments instead, do not enable this CLI deployment workflow and remove `git.deploymentEnabled: false` from `vercel.json`; running both deployment systems can deploy the same commit twice.
+
 ### Hosting Setup:
 - **Vercel**: Push to your repository and import on [Vercel](https://vercel.com). The included `vercel.json` ensures client-side routing works out of the box.
 - **Netlify / Cloudflare Pages**:
