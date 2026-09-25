@@ -2,7 +2,7 @@
 
 **Record Windows playback or an ASIO input to WAV.** SL.STUDIO is a native 64-bit Windows recorder for DJ sets, live sessions, and other audio you are authorized to record. Choose WASAPI loopback to capture the default Windows playback endpoint, or choose an installed ASIO driver to record its physical input channels.
 
-[Download the latest release](https://github.com/sar365/c-users-SL.Studio/releases/latest) · [Browse releases](https://github.com/sar365/c-users-SL.Studio/releases) · [Report a bug or ask a question](https://github.com/sar365/c-users-SL.Studio/issues)
+[Visit the website](https://c-users-sl-studio.vercel.app/) · [Download the latest release](https://github.com/sar365/c-users-SL.Studio/releases/latest) · [Browse releases](https://github.com/sar365/c-users-SL.Studio/releases) · [Report a bug or ask a question](https://github.com/sar365/c-users-SL.Studio/issues)
 
 [![Build & Release](https://github.com/sar365/c-users-SL.Studio/actions/workflows/build-and-release.yml/badge.svg?branch=main)](https://github.com/sar365/c-users-SL.Studio/actions/workflows/build-and-release.yml)
 
@@ -54,7 +54,7 @@ By default, completed files are saved under the Windows **Music** known folder i
 
 ## Web preview
 
-The React site in this repository is a companion preview and setup guide, not a control surface for the Windows desktop recorder. Its optional browser audio test requests **microphone input** from the browser and records a browser-supported format; it does not provide Windows system-audio loopback. Use `SLSTUDIO.exe` for WASAPI or ASIO recording.
+Visit the [SL.STUDIO website](https://c-users-sl-studio.vercel.app/) for the companion preview, setup guide, and browser microphone test. This React site is not a control surface for the Windows desktop recorder. Its optional browser audio test requests **microphone input** from the browser and records a browser-supported format; it does not provide Windows system-audio loopback. Use `SLSTUDIO.exe` for WASAPI or ASIO recording.
 
 ## Build from source
 
