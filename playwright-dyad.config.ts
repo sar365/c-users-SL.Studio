@@ -13,6 +13,8 @@ export default defineConfig({
   reporter: [["json", { outputFile: "test-results/results.json" }]],
   use: {
     baseURL: process.env.DYAD_TEST_BASE_URL || "http://localhost:32100",
+    // The deployment smoke spec adds Vercel's bypass header only to requests
+    // whose origin matches baseURL; do not set the secret globally here.
     // Slow motion: Dyad sets DYAD_TEST_SLOW_MO (milliseconds between
     // actions) while the Tests panel's slow-motion toggle is on, so a run is
     // easy to follow. Unset means full speed.

@@ -34,7 +34,7 @@ native/DJSetRecorder/bin/publish/win-x64/SLSTUDIO.exe
 
 ### Automated GitHub Release
 
-The release workflow is `.github/workflows/build-and-release.yml`. **It is on the `polish/windows-release-readiness` branch in draft PR #4; merge that PR to enable it on `main`.** Ensure GitHub Actions are enabled for the repository. The release job requests the built-in `GITHUB_TOKEN` permission `contents: write`, so no personal access token or secret is needed for the normal same-repository release.
+The release workflow is `.github/workflows/build-and-release.yml`. **It is on the `polish/windows-release-readiness` branch in open PR #4; merge that PR to enable it on `main`.** Ensure GitHub Actions are enabled for the repository. The release job requests the built-in `GITHUB_TOKEN` permission `contents: write`, so no personal access token or secret is needed for the normal same-repository release.
 
 For each release:
 
@@ -67,23 +67,33 @@ The production bundle is created in `dist/`.
 
 ### GitHub Actions deployment to Vercel
 
-The workflow in `.github/workflows/ci-vercel.yml` runs lint and Playwright tests before deployment. It deploys previews for same-repository pull requests and production from `main`; pull requests from forks run checks but do not receive Vercel secrets or deployments. It uses the Vercel CLI `--prebuilt` flow, so the tested Vercel build is deployed without a second build. `vercel.json` disables Vercel's automatic Git deployments to prevent duplicate builds; GitHub Actions becomes the deployment path.
+The workflow in `.github/workflows/ci-vercel.yml` runs lint and Playwright tests before deployment, then runs a separate Playwright smoke test against the deployed URL. It deploys previews for same-repository pull requests and production from `main`; pull requests from forks run checks but do not receive Vercel secrets or deployments. It uses the Vercel CLI `--prebuilt` flow, so the Vercel build is deployed without a second build. `vercel.json` disables Vercel's automatic Git deployments to prevent duplicates; GitHub Actions becomes the deployment path.
 
 Before enabling the workflow:
 
 1. Link or import this repository as a Vercel project and confirm its **Root Directory** is the repository root (`.`) and its output/build settings work with Vite.
-2. From the project's `.vercel/project.json`, copy `orgId` and `projectId`. Create a Vercel access token with access to that project/team.
-3. In GitHub, open **Settings → Secrets and variables → Actions** and add these repository secrets (never commit the token):
+2. Install the Vercel CLI (`npm install --global vercel`), authenticate with `vercel login`, and run `vercel link` from the repository root. Select the correct team/account and project. The CLI writes `.vercel/project.json`. Read the IDs with:
+
+   ```bash
+   node -p "JSON.parse(require('fs').readFileSync('.vercel/project.json', 'utf8')).orgId"
+   node -p "JSON.parse(require('fs').readFileSync('.vercel/project.json', 'utf8')).projectId"
+   ```
+
+   The first value is the organization/team ID; the second is the project ID. Do not commit `.vercel` if it contains local environment files.
+3. Create a Vercel access token scoped to the project/team. In GitHub, open **Settings → Secrets and variables → Actions** and add these repository secrets (never commit the token):
    - `VERCEL_TOKEN`
    - `VERCEL_ORG_ID`
    - `VERCEL_PROJECT_ID`
-4. Merge the workflow and `vercel.json` changes to `main`. Pull requests to `main` run checks and a Vercel preview; pushes to `main` run checks and deploy to production. The preview URL and production URL appear in the GitHub Actions run summary.
-5. Optionally add required reviewers and other deployment protection rules to the GitHub `production` environment.
+4. If Vercel Deployment Protection is enabled, create a **Protection Bypass for Automation** secret in the Vercel project's Deployment Protection settings and store it as the GitHub Actions secret `VERCEL_AUTOMATION_BYPASS_SECRET`. The deployed-site Playwright smoke test uses Vercel's bypass headers only for requests to the tested deployment origin. Leave this secret unset if deployments are public.
+5. Merge the workflow and `vercel.json` changes to `main`. Pull requests to `main` run checks, deploy a Vercel preview, and smoke-test the preview; pushes to `main` run checks, deploy to production, and smoke-test production. The deployment URLs appear in the GitHub Actions run summary.
+6. Optionally add required reviewers and other deployment protection rules to the GitHub `production` environment.
+
+To disable Vercel's built-in Git deployments, set `"git": { "deploymentEnabled": false }` in `vercel.json` (already included for this workflow). This disables Git-triggered deployments for all branches while leaving the Vercel CLI deploys from GitHub Actions enabled. Remove that setting if you return to Vercel's native Git deployment flow.
 
 If you want Vercel's native Git integration to create deployments instead, do not enable this CLI deployment workflow and remove `git.deploymentEnabled: false` from `vercel.json`; running both deployment systems can deploy the same commit twice.
 
 ### Hosting Setup:
-- **Vercel**: Push to your repository and import on [Vercel](https://vercel.com). The included `vercel.json` ensures client-side routing works out of the box.
+- **Vercel**: Link the repository as a project, set the Vite root/output settings, and use the GitHub Actions deployment flow above. The included `vercel.json` configures SPA rewrites and security headers and disables native Git-triggered deployments to prevent duplicates.
 - **Netlify / Cloudflare Pages**:
   - Build command: `npm run build`
   - Publish directory: `dist`

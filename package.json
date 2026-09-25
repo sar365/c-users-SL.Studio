@@ -14,7 +14,8 @@
     "cap:open:ios": "npx cap open ios",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "playwright test --config playwright-dyad.config.ts"
+    "test": "playwright test --config playwright-dyad.config.ts",
+    "test:smoke": "playwright test --config playwright-dyad.config.ts e2e-tests/deployed-site-smoke.spec.ts"
   },
   "dependencies": {
     "@capacitor/android": "^7.6.9",
