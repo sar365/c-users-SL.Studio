@@ -76,6 +76,13 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout tagged source and release notes
+        uses: actions/checkout@v4
+
+      - name: Verify versioned release notes exist
+        shell: bash
+        run: test -s "docs/releases/${GITHUB_REF_NAME}.md"
+
       - name: Download Windows Binary
         uses: actions/download-artifact@v4
         with:
@@ -88,16 +95,8 @@ jobs:
           files: |
             release-assets/SLSTUDIO.exe
             release-assets/SLSTUDIO.exe.sha256
+          fail_on_unmatched_files: true
           name: SL.STUDIO ${{ github.ref_name }}
-          body: |
-            ## SL.STUDIO Release ${{ github.ref_name }}
-            
-            ### Included Assets:
-            - **`SLSTUDIO.exe`**: Standalone, self-contained single-file 64-bit Windows audio recorder.
-            
-            ### Features:
-            - WASAPI loopback capture from the default Windows playback endpoint, or capture from an installed ASIO input driver.
-            - Uncompressed WAV output with no lossy encoder in the recording path; the source app, Windows mixer, driver, and device may still affect the signal.
-            - Automatic saving to `%USERPROFILE%\Music\SL.STUDIO Sets\`.
+          body_path: docs/releases/${{ github.ref_name }}.md
           draft: false
           prerelease: false

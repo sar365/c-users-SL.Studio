@@ -33,7 +33,7 @@ native/DJSetRecorder/bin/publish/win-x64/SLSTUDIO.exe
 ```
 
 ### Automated GitHub Release
-When you push a Git tag starting with `v` (e.g. `git tag v1.0.0 && git push origin v1.0.0`), the included GitHub Actions workflow will automatically compile `SLSTUDIO.exe` and publish it as a GitHub Release download.
+When you push a Git tag starting with `v` (e.g. `git tag v1.0.3 && git push origin v1.0.3`), the included GitHub Actions workflow will compile `SLSTUDIO.exe`, generate its SHA-256 checksum, and publish both as a GitHub Release. Before tagging, add the matching user-facing notes at `docs/releases/<tag>.md` (for example, `docs/releases/v1.0.3.md`); the workflow uses that file as the release body.
 
 ---
 
