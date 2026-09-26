@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -29,7 +29,7 @@ jobs:
         run: npm run build
 
       - name: Upload Web Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-dist
           path: dist/
@@ -39,10 +39,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
@@ -64,7 +64,7 @@ jobs:
           "$hash  SLSTUDIO.exe" | Set-Content dist/windows-x64/SLSTUDIO.exe.sha256 -NoNewline
 
       - name: Upload Windows Binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: slstudio-windows-x64
           path: dist/windows-x64/SLSTUDIO.exe*
@@ -78,20 +78,20 @@ jobs:
       contents: write
     steps:
       - name: Checkout tagged source and release notes
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Verify versioned release notes exist
         shell: bash
         run: test -s "docs/releases/${GITHUB_REF_NAME}.md"
 
       - name: Download Windows Binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: slstudio-windows-x64
           path: release-assets/
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             release-assets/SLSTUDIO.exe

@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
 
+// Do not retain network traces for these tests: they send the optional Vercel
+// protection-bypass header, which must not be persisted in test artifacts.
+test.use({ trace: "off" });
+
 // Vercel's preview deployments may have Deployment Protection enabled. Send the
 // optional bypass secret only to the exact deployment origin under test; never
 // forward it to external assets or redirects.
