@@ -1,22 +1,46 @@
 import { expect, test } from "@playwright/test";
 
-// Do not retain network traces for these tests: they send the optional Vercel
-// protection-bypass header, which must not be persisted in test artifacts.
+const candidateUrl = process.env.DYAD_TEST_BASE_URL;
+if (!candidateUrl) {
+  throw new Error(
+    "DYAD_TEST_BASE_URL is required; set it to the deployed Vercel candidate URL.",
+  );
+}
+
+const candidate = new URL(candidateUrl);
+if (
+  candidate.protocol !== "https:" ||
+  !candidate.hostname.endsWith(".vercel.app") ||
+  candidate.username ||
+  candidate.password ||
+  candidate.search ||
+  candidate.hash ||
+  (candidate.pathname !== "/" && candidate.pathname !== "")
+) {
+  throw new Error(
+    "DYAD_TEST_BASE_URL must be an HTTPS Vercel deployment URL with no path, query, or fragment.",
+  );
+}
+
+const candidateOrigin = candidate.origin;
+const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+if (!bypassSecret) {
+  throw new Error(
+    "VERCEL_AUTOMATION_BYPASS_SECRET is required for the protected candidate smoke test.",
+  );
+}
+
+// Never persist request traces for these tests: they may contain the bypass
+// header. Failure screenshots remain enabled by the Playwright config.
 test.use({ trace: "off" });
 
-// Vercel's preview deployments may have Deployment Protection enabled. Send the
-// optional bypass secret only to the exact deployment origin under test; never
-// forward it to external assets or redirects.
+// Vercel Deployment Protection may block CI. Attach its automation bypass only
+// to requests for this exact candidate origin; never forward it to redirects,
+// third-party assets, or unrelated hosts.
 test.beforeEach(async ({ page }) => {
-  const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
-  if (!bypassSecret) return;
-
-  const baseUrl = process.env.DYAD_TEST_BASE_URL || "http://localhost:32100";
-  const deploymentOrigin = new URL(baseUrl).origin;
-
   await page.route("**/*", async (route) => {
-    const requestUrl = new URL(route.request().url());
-    if (requestUrl.origin !== deploymentOrigin) {
+    const requestOrigin = new URL(route.request().url()).origin;
+    if (requestOrigin !== candidateOrigin) {
       await route.continue();
       return;
     }
@@ -31,18 +55,18 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("deployed home page responds and renders the SL.STUDIO overview", async ({ page }) => {
-  const response = await page.goto("/");
+test("candidate home page responds and renders the SL.STUDIO overview", async ({ page }) => {
+  const response = await page.goto(candidateUrl);
 
-  expect(response, "the home page should return an HTTP response").not.toBeNull();
-  expect(response!.status(), "the home page should not return an error").toBeLessThan(400);
+  expect(response, "the candidate home page should return an HTTP response").not.toBeNull();
+  expect(response!.status(), "the candidate home page should return HTTP 200").toBe(200);
   await expect(page).toHaveTitle(/SL\.STUDIO/);
   await expect(page.getByRole("heading", { name: "Studio Overview" })).toBeVisible();
   await expect(page.getByTestId("feature-wasapi-loopback-card")).toBeVisible();
 });
 
-test("client-side navigation loads setup instructions and returns to overview", async ({ page }) => {
-  await page.goto("/");
+test("candidate client-side navigation loads instructions and returns to overview", async ({ page }) => {
+  await page.goto(candidateUrl);
 
   await page.getByRole("tab", { name: "Instructions", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Native Setup Instructions" })).toBeVisible();

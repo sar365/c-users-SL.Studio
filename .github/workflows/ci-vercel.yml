@@ -231,7 +231,7 @@ jobs:
       - name: Install Playwright Chromium and system dependencies
         run: npx playwright install --with-deps chromium
 
-      - name: Run deployed-site smoke test
+      - name: Run Playwright smoke test against deployed candidate URL
         run: npm run test:smoke
 
       - name: Upload Playwright diagnostics
