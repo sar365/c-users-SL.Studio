@@ -22,9 +22,8 @@ test("Navigate tabs and preview recordings", async ({ page }) => {
   await page.getByRole("button", { name: "Pause audio preview", exact: true }).click();
   await page.getByText("Studio_Techno_Master_2025-02-09.wav", { exact: true }).dblclick();
   await page.getByRole("button", { name: "Copy Path", exact: true }).nth(2).click();
-  await page.getByText("Lossless Audio & DJ Set Recorder", { exact: true }).click();
-  await page.getByTestId("header-tagline-badge").click();
-  await page.getByRole("img", { name: "SL.STUDIO Logo", exact: true }).click();
+  await page.getByRole("tab", { name: "Overview", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Studio Overview" })).toBeVisible();
   await page.getByRole("tab", { name: "Troubleshoot", exact: true }).click();
   await page.getByTestId("troubleshoot-audio-captured-description").click();
   await page.getByTestId("troubleshoot-audio-captured-icon").dblclick();

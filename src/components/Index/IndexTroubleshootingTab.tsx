@@ -31,7 +31,7 @@ export function IndexTroubleshootingTab() {
           <div className="space-y-1">
             <p className="font-semibold text-white">No Audio Captured / Silent File</p>
             <p data-testid="troubleshoot-audio-captured-description" className="text-sm text-neutral-300 leading-relaxed">
-              Verify in the Windows Audio settings that your default playback device matches the one selected in the SL.STUDIO dropdown menu. WASAPI loopback captures only the exact active endpoint.
+              For WASAPI loopback, set the intended speakers, headphones, or interface as the Windows default playback device; SL.STUDIO captures that default multimedia endpoint. For ASIO, select the correct driver and stereo input pair.
             </p>
           </div>
         </div>
@@ -44,7 +44,7 @@ export function IndexTroubleshootingTab() {
           <div className="space-y-1">
             <p className="font-semibold text-white">Buffer Overruns or Stuttering</p>
             <p className="text-sm text-neutral-300 leading-relaxed">
-              Ensure you are recording to an internal NVMe/SSD rather than a slow USB 2.0 thumb drive. High samplerate (96kHz/24-bit) PCM requires continuous sustained disk write throughput.
+              Choose a local drive with adequate free space and sustained write speed, especially for high-sample-rate or high-bit-depth audio. Close other disk-heavy apps; SL.STUDIO warns if its bounded audio queue fills.
             </p>
           </div>
         </div>
@@ -57,7 +57,7 @@ export function IndexTroubleshootingTab() {
           <div className="space-y-1">
             <p className="font-semibold text-white">Digital Distortion or Clipping</p>
             <p className="text-sm text-neutral-300 leading-relaxed">
-              SL.STUDIO records direct bit-perfect PCM without applying artificial compression. If the recording sounds clipped, lower the Master Out volume in your DJ software by 2–3 dB to prevent digital overs at 0 dBFS.
+              The meters show peak level in dBFS. If a peak reaches 0 dBFS or the source already sounds distorted, lower the source or master output before recording. SL.STUDIO writes uncompressed WAV and does not remove clipping already present in the captured signal.
             </p>
           </div>
         </div>
@@ -70,7 +70,7 @@ export function IndexTroubleshootingTab() {
           <div className="space-y-1">
             <p className="font-semibold text-white">Exclusive Mode Conflict</p>
             <p className="text-sm text-neutral-300 leading-relaxed">
-              If your DJ software (e.g., ASIO exclusive mode) locks the sound card completely, switch your DJ software to direct sound or shared WASAPI mode to allow loopback capture.
+              WASAPI loopback captures the shared default Windows playback stream. If a source app takes exclusive control of the device, use its shared-output mode or select an appropriate ASIO input in SL.STUDIO when your setup supports it.
             </p>
           </div>
         </div>

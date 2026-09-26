@@ -48,7 +48,7 @@ export function IndexInstructionsTab() {
             </h3>
           </div>
           <p className="text-sm text-muted-foreground pl-11">
-            Open <code className="font-mono text-xs rounded bg-background border border-border text-pink-400 px-1.5 py-0.5">SL.STUDIO.csproj</code> in Visual Studio 2022 (with .NET Desktop Development enabled) or compile with the .NET 8 CLI. Select <strong>Release / x64</strong> and click <strong>Build Solution</strong>.
+            Open <code className="font-mono text-xs rounded bg-background border border-border text-pink-400 px-1.5 py-0.5">SL.STUDIO.csproj</code> in Visual Studio 2022 (with .NET Desktop Development enabled) or publish with the .NET 10 SDK using the Windows release instructions. Select <strong>Release / x64</strong> for a local build.
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export function IndexInstructionsTab() {
             </h3>
           </div>
           <p className="text-sm text-muted-foreground pl-11">
-            Run <code className="font-mono text-xs rounded bg-background border border-border text-pink-400 px-1.5 py-0.5">SLSTUDIO.exe</code>. Choose your primary soundcard or DJ interface from the device list, set your DJ master out between -3 dB and -1 dB to retain anti-clipping headroom, then hit <strong>Start Recording</strong>.
+            Run <code className="font-mono text-xs rounded bg-background border border-border text-pink-400 px-1.5 py-0.5">SLSTUDIO.exe</code>. Choose <strong>WASAPI loopback</strong> to capture the Windows default playback device, or select an installed <strong>ASIO input</strong> driver and channel pair. Confirm the meters respond, then start recording.
           </p>
         </div>
       </CardContent>

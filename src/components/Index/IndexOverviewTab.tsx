@@ -22,12 +22,12 @@ export function IndexOverviewTab() {
               <span>Studio Overview</span>
             </CardTitle>
             <CardDescription className="text-muted-foreground mt-1">
-              Engine architecture and real-time lossless WASAPI loopback audio capture.
+              Windows playback or ASIO input capture, saved as uncompressed WAV.
             </CardDescription>
           </div>
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary">
             <Sparkles className="h-3.5 w-3.5 text-accent" />
-            <span>24-bit Lossless</span>
+            <span>Uncompressed WAV</span>
           </div>
         </div>
       </CardHeader>
@@ -43,7 +43,7 @@ export function IndexOverviewTab() {
               <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/30">Direct Link</span>
             </p>
             <p data-testid="feature-wasapi-loopback-description" className="text-sm text-muted-foreground leading-relaxed">
-              Captures output directly from the Windows sound subsystem. Records whatever you hear through your master speakers, headphones, or DJ controller audio output without internal re-encoding.
+              Captures the default Windows playback endpoint without adding a lossy encoding stage. The source app, Windows mixer, drivers, and device processing can still affect the signal.
             </p>
           </div>
         </div>
@@ -55,11 +55,11 @@ export function IndexOverviewTab() {
           </div>
           <div className="space-y-1">
             <p className="font-semibold text-foreground flex items-center gap-2">
-              Lossless PCM Broadcast Quality
+              Uncompressed PCM WAV
               <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-accent/20 text-accent-foreground border border-accent/30">Zero Compression</span>
             </p>
             <p data-testid="feature-lossless-pcm-description" className="text-sm text-muted-foreground leading-relaxed">
-              Mixes are written directly to uncompressed WAV formats with studio dynamic headroom, preserving subtle transitions, punchy transients, and pure bass response.
+              Captured samples are written to standard WAV files without a lossy codec. Output quality depends on the selected source and any processing upstream of the recorder.
             </p>
           </div>
         </div>
@@ -70,9 +70,9 @@ export function IndexOverviewTab() {
             <Sliders className="h-5 w-5" />
           </div>
           <div className="space-y-1">
-            <p className="font-semibold text-foreground">Zero-Latency VU Feedback</p>
+            <p className="font-semibold text-foreground">Real-Time Peak Feedback</p>
             <p data-testid="feature-vu-feedback-description" className="text-sm text-muted-foreground leading-relaxed">
-              Hardware-accelerated audio level monitors provide instantaneous visual feedback to help prevent digital clipping during high-energy DJ performances.
+              Stereo peak meters show levels in dBFS while recording and can help reveal clipping. They do not change or repair the captured audio.
             </p>
           </div>
         </div>

@@ -11,6 +11,7 @@ on:
 jobs:
   build-web:
     name: Build Web App
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -19,10 +20,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Web
         run: npm run build
@@ -43,7 +44,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Publish Windows Single-File Binary
         run: |
@@ -56,11 +57,17 @@ jobs:
             -p:EnableCompressionInSingleFile=true `
             -o dist/windows-x64
 
+      - name: Create SHA-256 checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash dist/windows-x64/SLSTUDIO.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  SLSTUDIO.exe" | Set-Content dist/windows-x64/SLSTUDIO.exe.sha256 -NoNewline
+
       - name: Upload Windows Binary
         uses: actions/upload-artifact@v4
         with:
           name: slstudio-windows-x64
-          path: dist/windows-x64/SLSTUDIO.exe
+          path: dist/windows-x64/SLSTUDIO.exe*
 
   create-github-release:
     name: Create GitHub Release
@@ -70,6 +77,13 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout tagged source and release notes
+        uses: actions/checkout@v4
+
+      - name: Verify versioned release notes exist
+        shell: bash
+        run: test -s "docs/releases/${GITHUB_REF_NAME}.md"
+
       - name: Download Windows Binary
         uses: actions/download-artifact@v4
         with:
@@ -79,17 +93,11 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release-assets/SLSTUDIO.exe
+          files: |
+            release-assets/SLSTUDIO.exe
+            release-assets/SLSTUDIO.exe.sha256
+          fail_on_unmatched_files: true
           name: SL.STUDIO ${{ github.ref_name }}
-          body: |
-            ## SL.STUDIO Release ${{ github.ref_name }}
-            
-            ### Included Assets:
-            - **`SLSTUDIO.exe`**: Standalone, self-contained single-file 64-bit Windows WASAPI loopback recorder.
-            
-            ### Features:
-            - Pure WASAPI loopback capture from default Windows multimedia endpoint.
-            - Low-latency circular buffering with zero compression loss.
-            - Direct automatic saving to `%USERPROFILE%\Music\SL.STUDIO Sets\`.
+          body_path: docs/releases/${{ github.ref_name }}.md
           draft: false
           prerelease: false

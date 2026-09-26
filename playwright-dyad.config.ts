@@ -4,7 +4,7 @@ import { defineConfig } from "@playwright/test";
 // preview, so we point baseURL at the already-running proxy URL (passed via
 // env) rather than using Playwright's `webServer` (which would double-start
 // the app).
-// // Uses your installed Google Chrome (no extra browser download).
+// Uses Playwright-managed Chromium so local and CI runs use a known browser build.
 export default defineConfig({
   testDir: "./e2e-tests",
   // Run serially against the single dev server.
@@ -13,11 +13,12 @@ export default defineConfig({
   reporter: [["json", { outputFile: "test-results/results.json" }]],
   use: {
     baseURL: process.env.DYAD_TEST_BASE_URL || "http://localhost:32100",
+    // The deployment smoke spec adds Vercel's bypass header only to requests
+    // whose origin matches baseURL; do not set the secret globally here.
     // Slow motion: Dyad sets DYAD_TEST_SLOW_MO (milliseconds between
     // actions) while the Tests panel's slow-motion toggle is on, so a run is
     // easy to follow. Unset means full speed.
     launchOptions: { slowMo: Number(process.env.DYAD_TEST_SLOW_MO) || 0 },
-    channel: "chrome",
     // Off for a preview run: tracing expects browser-global CDP access, which
     // the preview-only automation broker deliberately rejects. The fixture
     // shim attaches a screenshot of the selected page instead.
