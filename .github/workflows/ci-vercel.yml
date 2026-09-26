@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: slstudio-ci-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   checks:
@@ -20,10 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -69,7 +69,7 @@ jobs:
 
       - name: Upload Playwright diagnostics
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-results-${{ github.run_id }}
           path: test-results/
@@ -97,10 +97,10 @@ jobs:
       DEPLOY_BRANCH: ${{ github.head_ref }}
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -136,10 +136,10 @@ jobs:
       VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -155,15 +155,15 @@ jobs:
 
       - name: Upload Playwright diagnostics
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: preview-smoke-results-${{ github.run_id }}
           path: test-results/
           if-no-files-found: ignore
           retention-days: 7
 
-  deploy-production:
-    name: Deploy Vercel production
+  deploy-production-candidate:
+    name: Deploy Vercel production candidate (domains unchanged)
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: checks
     runs-on: ubuntu-latest
@@ -177,10 +177,10 @@ jobs:
       VERCEL_TELEMETRY_DISABLED: 1
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -196,28 +196,31 @@ jobs:
       - name: Build Vercel production artifact
         run: vercel build --prod --token="$VERCEL_TOKEN"
 
-      - name: Deploy production
+      - name: Deploy production candidate without assigning production domains
         id: deployment
         shell: bash
         run: |
           set -euo pipefail
-          deployment_url="$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")"
+          deployment_url="$(vercel deploy --prebuilt --prod --skip-domain \
+            --meta="githubDeployment=1" \
+            --meta="githubCommitRef=main" \
+            --token="$VERCEL_TOKEN")"
           echo "url=$deployment_url" >> "$GITHUB_OUTPUT"
-          echo "Production deployment: $deployment_url" >> "$GITHUB_STEP_SUMMARY"
+          echo "Production candidate: $deployment_url" >> "$GITHUB_STEP_SUMMARY"
 
   smoke-production:
-    name: Smoke-test Vercel production
-    needs: deploy-production
+    name: Smoke-test Vercel production candidate
+    needs: deploy-production-candidate
     runs-on: ubuntu-latest
     env:
-      DYAD_TEST_BASE_URL: ${{ needs.deploy-production.outputs.url }}
+      DYAD_TEST_BASE_URL: ${{ needs.deploy-production-candidate.outputs.url }}
       VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -228,14 +231,43 @@ jobs:
       - name: Install Playwright Chromium and system dependencies
         run: npx playwright install --with-deps chromium
 
-      - name: Run deployed-site smoke test
+      - name: Run Playwright smoke test against deployed candidate URL
         run: npm run test:smoke
 
       - name: Upload Playwright diagnostics
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: production-smoke-results-${{ github.run_id }}
           path: test-results/
           if-no-files-found: ignore
           retention-days: 7
+
+  promote-production:
+    name: Promote smoke-tested Vercel deployment
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.smoke-production.result == 'success'
+    needs: [deploy-production-candidate, smoke-production]
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: slstudio-vercel-production-promotion
+      cancel-in-progress: false
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_TELEMETRY_DISABLED: 1
+      DEPLOYMENT_URL: ${{ needs.deploy-production-candidate.outputs.url }}
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Install pinned Vercel CLI
+        run: npm install --global vercel@60.0.1
+
+      - name: Promote the exact smoke-tested deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          vercel promote --yes "$DEPLOYMENT_URL" --token="$VERCEL_TOKEN"
+          echo "Promoted production deployment: $DEPLOYMENT_URL" >> "$GITHUB_STEP_SUMMARY"
